@@ -14,7 +14,6 @@ def get_default_gates(
             cirq.Z(qubit),
             cirq.H(qubit),
             cirq.CNOT(qubit, next_qubit),
-            cirq.CNOT(next_qubit,qubit)
         ]
     return gates
 
