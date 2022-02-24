@@ -22,7 +22,6 @@ class QuantumArchSearch(gym.Env):
         max_timesteps: int,
     ):
         super(QuantumArchSearch, self).__init__()
-
         self.target = target
         self.qubits = qubits
         self.state_observables = state_observables
@@ -38,7 +37,9 @@ class QuantumArchSearch(gym.Env):
                                             high=1.,
                                             shape=(len(state_observables), ))
         self.action_space = spaces.Discrete(n=len(action_gates))
+        self.circuit_gates = []
         self.seed()
+
 
     def __str__(self):
         desc = 'QuantumArchSearch-v0('
@@ -78,8 +79,40 @@ class QuantumArchSearch(gym.Env):
         return fidelity
 
     def step(self, action):
+        #Preprocessing
+        n=len(self.qubits)
+        qubit_gates = {}
+        for i in range(0,n):
+            qubit_gates[i]=[]
+            
+        gates = []
+        for i in self.circuit_gates:
+            gates.append(str(i))
 
+        for s in gates:
+            for c in reversed(s):
+                if c==')':
+                    continue
+                elif c.isdigit():
+                    qubit_gates[int(c)].append(s)
+                elif c == '(' or c == ',':
+                    break
+
+        #Check if samee action is being taken twice
         action_gate = self.action_gates[action]
+
+        for c in reversed(str(action_gate)):
+            if c==')':
+                continue
+            elif c.isdigit():
+                pos = int(c)
+            elif c == '(' or c == ',':
+                break
+        if len(qubit_gates[pos]) != 0:
+            if qubit_gates[pos][-1] == str(action_gate) and not str(action_gate).startswith('Rz'):
+                return self.get_obs(), -2*self.reward_penalty, False, {'fidelity': self.get_fidelity(), 'circuit': self.get_cirq()}
+        
+        #Actual step function
         self.circuit_gates.append(action_gate)
 
         observation = self.get_obs()
