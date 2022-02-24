@@ -80,37 +80,37 @@ class QuantumArchSearch(gym.Env):
 
     def step(self, action):
         #Preprocessing
-        n=len(self.qubits)
-        qubit_gates = {}
-        for i in range(0,n):
-            qubit_gates[i]=[]
+        # n=len(self.qubits)
+        # qubit_gates = {}
+        # for i in range(0,n):
+        #     qubit_gates[i]=[]
             
-        gates = []
-        for i in self.circuit_gates:
-            gates.append(str(i))
+        # gates = []
+        # for i in self.circuit_gates:
+        #     gates.append(str(i))
 
-        for s in gates:
-            for c in reversed(s):
-                if c==')':
-                    continue
-                elif c.isdigit():
-                    qubit_gates[int(c)].append(s)
-                elif c == '(' or c == ',':
-                    break
+        # for s in gates:
+        #     for c in reversed(s):
+        #         if c==')':
+        #             continue
+        #         elif c.isdigit():
+        #             qubit_gates[int(c)].append(s)
+        #         elif c == '(' or c == ',':
+        #             break
 
-        #Check if samee action is being taken twice
+        #Check if same action is being taken twice
         action_gate = self.action_gates[action]
 
-        for c in reversed(str(action_gate)):
-            if c==')':
-                continue
-            elif c.isdigit():
-                pos = int(c)
-            elif c == '(' or c == ',':
-                break
-        if len(qubit_gates[pos]) != 0:
-            if qubit_gates[pos][-1] == str(action_gate) and not str(action_gate).startswith('Rz'):
-                return self.get_obs(), -2*self.reward_penalty, False, {'fidelity': self.get_fidelity(), 'circuit': self.get_cirq()}
+        # for c in reversed(str(action_gate)):
+        #     if c==')':
+        #         continue
+        #     elif c.isdigit():
+        #         pos = int(c)
+        #     elif c == '(' or c == ',':
+        #         break
+        # if len(qubit_gates[pos]) != 0:
+        #     if qubit_gates[pos][-1] == str(action_gate) and not str(action_gate).startswith('Rz'):
+        #         return self.get_obs(), -2*self.reward_penalty, False, {'fidelity': self.get_fidelity(), 'circuit': self.get_cirq()}
         
         #Actual step function
         self.circuit_gates.append(action_gate)
